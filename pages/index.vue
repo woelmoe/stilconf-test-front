@@ -32,6 +32,10 @@ async function updateUser(id: string, params: IUser) {
   return await $axios.$post(`http://localhost:3001/users/update/${id}`, params)
 }
 
+async function deleteUser(id: string) {
+  return await $axios.$get(`http://localhost:3001/users/delete/${id}`)
+}
+
 const newUser = {
   username: 'nik',
   speed: NetworkPerformanceSpeed.high,
@@ -43,13 +47,14 @@ const updatedUser = {
 }
 
 onMounted(async () => {
-  // console.log(
-  //   await createUser)
-  // )
+  // console.log(await createUser(newUser))
   const allUsersResponse = await getAllUsers()
-  const user0 = await getUser(allUsersResponse.data[0].userId)
-  console.log(user0)
-  const editRes = await updateUser(user0.data.userId, updatedUser)
-  console.log(editRes)
+  console.log(allUsersResponse)
+  // const user0 = await getUser(allUsersResponse.data[0].userId)
+  // console.log(user0)
+  // const id = user0.data.userId
+  // const editRes = await updateUser(id, updatedUser)
+  // console.log(editRes)
+  // deleteUser(id)
 })
 </script>
