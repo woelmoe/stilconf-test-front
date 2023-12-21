@@ -8,12 +8,14 @@ import { onMounted } from '@nuxtjs/composition-api'
 enum NetworkPerformanceSpeed {
   low = '100kb',
   mid = '500kb',
-  high = '2mb',
+  high = '2mb'
 }
 interface IUser {
   username: string
   speed: NetworkPerformanceSpeed
 }
+
+// User test //
 
 // const main = useMainStore()
 const { $axios } = useContext()
@@ -38,15 +40,15 @@ async function deleteUser(id: string) {
 
 const newUser = {
   username: 'nik',
-  speed: NetworkPerformanceSpeed.high,
+  speed: NetworkPerformanceSpeed.high
 }
 
 const updatedUser = {
   username: 'nikolas',
-  speed: NetworkPerformanceSpeed.low,
+  speed: NetworkPerformanceSpeed.low
 }
 
-onMounted(async () => {
+async function testUsers() {
   // console.log(await createUser(newUser))
   const allUsersResponse = await getAllUsers()
   console.log(allUsersResponse)
@@ -56,5 +58,83 @@ onMounted(async () => {
   // const editRes = await updateUser(id, updatedUser)
   // console.log(editRes)
   // deleteUser(id)
+}
+
+// chat test
+
+async function createChat() {
+  return await $axios.$get(`http://localhost:3001/chats/create`)
+}
+async function checkChatById(chatId: string) {
+  return await $axios.$get(`http://localhost:3001/chats/check/${chatId}`)
+}
+async function getChatById(chatId: string) {
+  return await $axios.$get(`http://localhost:3001/chats/${chatId}`)
+}
+async function registerUserByUserUUID(chatId: string, userId: string) {
+  console.log(chatId, userId)
+  return await $axios.$post(`http://localhost:3001/chats/register/${chatId}`, {
+    userId
+  })
+}
+async function postMessage(
+  chatId: string,
+  messageData: {
+    userId: string
+    username: string
+    content: string
+    date: Date
+  }
+) {
+  return await $axios.$post(
+    `http://localhost:3001/chats/${chatId}`,
+    messageData
+  )
+}
+
+async function testChats() {
+  const chatId = 'wBkRoc0B'
+  // createChat()
+
+  await createUser(newUser)
+  const allUsersResponse = await getAllUsers()
+  const user0 = allUsersResponse.data[0]
+  const user1 = allUsersResponse.data[1]
+  console.log(allUsersResponse)
+  // await checkChatById(chatId)
+  await registerUserByUserUUID(chatId, user0.userId)
+  await registerUserByUserUUID(chatId, user1.userId)
+  // const chatData = await getChatById(chatId)
+  // postMessage(chatId, {
+  //   username: user0.username,
+  //   userId: user0.userId,
+  //   date: new Date(),
+  //   content: 'hello world!'
+  // })
+  // postMessage(chatId, {
+  //   username: user1.username,
+  //   userId: user1.userId,
+  //   date: new Date(),
+  //   content: 'abra cadabra'
+  // })
+  // postMessage(chatId, {
+  //   username: user0.username,
+  //   userId: user0.userId,
+  //   date: new Date(),
+  //   content: 'hello world answer!'
+  // })
+  setTimeout(async () => {
+    const chatData = await getChatById(chatId)
+    const content = JSON.parse(chatData.data.chatData.content)
+    content.forEach((message: string) => {
+      const parsed = JSON.parse(message)
+      console.log(parsed)
+    })
+  }, 2000)
+}
+
+onMounted(async () => {
+  // testUsers()
+  testChats()
 })
 </script>
