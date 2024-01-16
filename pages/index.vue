@@ -4,6 +4,7 @@
 import { useMainStore } from '~/store/main'
 import { useContext } from '@nuxtjs/composition-api'
 import { onMounted } from '@nuxtjs/composition-api'
+import { io } from 'socket.io-client'
 
 enum NetworkPerformanceSpeed {
   low = '100kb',
@@ -133,8 +134,13 @@ async function testChats() {
   }, 2000)
 }
 
+function handleSocketConnection() {
+  const socket = io('http://localhost:8080')
+}
+
 onMounted(async () => {
   // testUsers()
-  testChats()
+  // testChats()
+  handleSocketConnection()
 })
 </script>
