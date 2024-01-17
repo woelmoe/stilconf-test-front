@@ -134,17 +134,45 @@ async function testChats() {
   }, 2000)
 }
 
-function handleSocketConnection() {
+async function handleSocketConnection() {
+  // const chat = await createChat()
+  // console.log(chat)
   const socket = new WebSocket('ws://localhost:3001')
-  socket.onopen = () => {
+  socket.onopen = async () => {
+    const user = await createUser(newUser)
+    console.log(user)
     socket.send(
       JSON.stringify({
-        event: 'join',
+        event: 'Join',
         data: {
-          dsfdsf: 'fdfdfd'
+          userId: user.data.userId,
+          bitrate: user.data.speed,
+          // roomId: chat.data.chatId
+          roomId: 'T2h0ljI5'
         }
       })
     )
+
+    socket.send(
+      JSON.stringify({
+        event: 'GetRooms'
+      })
+    )
+
+    setTimeout(() => {
+      socket.send(
+        JSON.stringify({
+          event: 'Leave',
+          data: {
+            roomId: 'T2h0ljI5'
+          }
+        })
+      )
+    }, 2000)
+
+    socket.onmessage = async (event: any) => {
+      console.log(JSON.parse(event.data))
+    }
   }
 }
 
