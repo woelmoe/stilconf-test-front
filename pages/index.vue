@@ -135,7 +135,17 @@ async function testChats() {
 }
 
 function handleSocketConnection() {
-  const socket = io('http://localhost:8080')
+  const socket = new WebSocket('ws://localhost:3001')
+  socket.onopen = () => {
+    socket.send(
+      JSON.stringify({
+        event: 'join',
+        data: {
+          dsfdsf: 'fdfdfd'
+        }
+      })
+    )
+  }
 }
 
 onMounted(async () => {
