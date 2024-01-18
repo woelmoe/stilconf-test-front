@@ -1,10 +1,9 @@
 <template></template>
 
 <script lang="ts" setup>
-import { useMainStore } from '~/store/main'
+// import { useMainStore } from '~/store/main'
 import { useContext } from '@nuxtjs/composition-api'
 import { onMounted } from '@nuxtjs/composition-api'
-import { io } from 'socket.io-client'
 
 enum NetworkPerformanceSpeed {
   low = '100kb',
@@ -16,6 +15,9 @@ interface IUser {
   speed: NetworkPerformanceSpeed
 }
 
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 // User test //
 
 // const main = useMainStore()
@@ -100,11 +102,11 @@ async function testChats() {
   await createUser(newUser)
   const allUsersResponse = await getAllUsers()
   const user0 = allUsersResponse.data[0]
-  const user1 = allUsersResponse.data[1]
+  const user = allUsersResponse.data[1]
   console.log(allUsersResponse)
   // await checkChatById(chatId)
   await registerUserByUserUUID(chatId, user0.userId)
-  await registerUserByUserUUID(chatId, user1.userId)
+  await registerUserByUserUUID(chatId, user.userId)
   // const chatData = await getChatById(chatId)
   // postMessage(chatId, {
   //   username: user0.username,
@@ -113,8 +115,8 @@ async function testChats() {
   //   content: 'hello world!'
   // })
   // postMessage(chatId, {
-  //   username: user1.username,
-  //   userId: user1.userId,
+  //   username: user.username,
+  //   userId: user.userId,
   //   date: new Date(),
   //   content: 'abra cadabra'
   // })
@@ -141,6 +143,9 @@ async function handleSocketConnection() {
   socket.onopen = async () => {
     const user = await createUser(newUser)
     console.log(user)
+
+    await delay(2000)
+
     socket.send(
       JSON.stringify({
         event: 'Join',
@@ -148,27 +153,50 @@ async function handleSocketConnection() {
           userId: user.data.userId,
           bitrate: user.data.speed,
           // roomId: chat.data.chatId
-          roomId: 'T2h0ljI5'
+          roomId: 'QETlswxl'
         }
       })
     )
 
+    await delay(2000)
+
     socket.send(
       JSON.stringify({
-        event: 'GetRooms'
+        event: 'RelaySDP',
+        data: {
+          peerId: user.data.userId,
+          sessionDescription: 'T2h0ljI5dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf'
+        }
       })
     )
 
-    setTimeout(() => {
-      socket.send(
-        JSON.stringify({
-          event: 'Leave',
-          data: {
-            roomId: 'T2h0ljI5'
-          }
-        })
-      )
-    }, 2000)
+    delay(2000)
+    socket.send(
+      JSON.stringify({
+        event: 'RelayICE',
+        data: {
+          peerId: user.data.userId,
+          iceCandidate: 'T2h0ljI5dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf'
+        }
+      })
+    )
+
+    // socket.send(
+    //   JSON.stringify({
+    //     event: 'GetRooms'
+    //   })
+    // )
+
+    // setTimeout(() => {
+    //   socket.send(
+    //     JSON.stringify({
+    //       event: 'Leave',
+    //       data: {
+    //         roomId: 'T2h0ljI5'
+    //       }
+    //     })
+    //   )
+    // }, 2000)
 
     socket.onmessage = async (event: any) => {
       console.log(JSON.parse(event.data))
