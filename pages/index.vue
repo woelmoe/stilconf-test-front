@@ -143,15 +143,21 @@ async function testChats() {
 }
 
 async function handleSocketConnection() {
-  const chat = await createChat()
+  // const chat = await createChat()
+  // const chatId = chat.data.chatId
   // console.log(chat)
-  // const chatId = 'dhZqEO9v'
+
+  const chatId = 'GM2wCEOK'
   const socket = new WebSocket('ws://localhost:3001')
+
   socket.onopen = async () => {
     const user = await createUser(newUser)
-    console.log(user)
-
     await delay(2000)
+
+    // const user1 = await createUser(newUser)
+    // console.log(user)
+    // console.log(user1)
+    // await delay(2000)
 
     socket.send(
       JSON.stringify({
@@ -161,24 +167,24 @@ async function handleSocketConnection() {
           bitrate: user.data.speed,
           username: user.data.username,
           // roomId: chat.data.chatId
-          roomId: chat.chatId
+          roomId: chatId
         }
       })
     )
     await delay(2000)
 
-    socket.send(
-      JSON.stringify({
-        event: 'BroadcastMessage',
-        data: {
-          username: user.username,
-          userId: user.userId,
-          date: new Date(),
-          content: 'hello world!',
-          chatId: chat.chatId
-        }
-      })
-    )
+    //   socket.send(
+    //     JSON.stringify({
+    //       event: 'BroadcastMessage',
+    //       data: {
+    //         username: user.username,
+    //         userId: user.userId,
+    //         date: new Date(),
+    //         content: 'hello world!',
+    //         chatId: chatId
+    //       }
+    //     })
+    //   )
 
     // socket.send(
     //   JSON.stringify({
@@ -212,7 +218,7 @@ async function handleSocketConnection() {
     //     JSON.stringify({
     //       event: 'Leave',
     //       data: {
-    //         roomId: 'T2h0ljI5'
+    //         roomId: chat.data.chatId
     //       }
     //     })
     //   )
