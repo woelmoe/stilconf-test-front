@@ -74,10 +74,15 @@ async function checkChatById(chatId: string) {
 async function getChatById(chatId: string) {
   return await $axios.$get(`http://localhost:3001/chats/${chatId}`)
 }
-async function registerUserByUserUUID(chatId: string, userId: string) {
-  console.log(chatId, userId)
+async function registerUserByUserUUID(
+  chatId: string,
+  userId: string,
+  username: string
+) {
+  console.log(chatId, userId, username)
   return await $axios.$post(`http://localhost:3001/chats/register/${chatId}`, {
-    userId
+    userId,
+    username
   })
 }
 async function postMessage(
@@ -96,24 +101,25 @@ async function postMessage(
 }
 
 async function testChats() {
-  const chatId = 'wBkRoc0B'
+  const chatId = 'T2h0ljI5'
   // createChat()
 
   await createUser(newUser)
   const allUsersResponse = await getAllUsers()
+  console.log(allUsersResponse)
   const user0 = allUsersResponse.data[0]
   const user = allUsersResponse.data[1]
   console.log(allUsersResponse)
   // await checkChatById(chatId)
-  await registerUserByUserUUID(chatId, user0.userId)
-  await registerUserByUserUUID(chatId, user.userId)
-  // const chatData = await getChatById(chatId)
-  // postMessage(chatId, {
-  //   username: user0.username,
-  //   userId: user0.userId,
-  //   date: new Date(),
-  //   content: 'hello world!'
-  // })
+  await registerUserByUserUUID(chatId, user0.userId, user0.username)
+  await registerUserByUserUUID(chatId, user.userId, user.username)
+  const chatData = await getChatById(chatId)
+  postMessage(chatId, {
+    username: user0.username,
+    userId: user0.userId,
+    date: new Date(),
+    content: 'hello world!'
+  })
   // postMessage(chatId, {
   //   username: user.username,
   //   userId: user.userId,
@@ -137,8 +143,9 @@ async function testChats() {
 }
 
 async function handleSocketConnection() {
-  // const chat = await createChat()
+  const chat = await createChat()
   // console.log(chat)
+  // const chatId = 'dhZqEO9v'
   const socket = new WebSocket('ws://localhost:3001')
   socket.onopen = async () => {
     const user = await createUser(newUser)
@@ -152,34 +159,47 @@ async function handleSocketConnection() {
         data: {
           userId: user.data.userId,
           bitrate: user.data.speed,
+          username: user.data.username,
           // roomId: chat.data.chatId
-          roomId: 'QETlswxl'
+          roomId: chat.chatId
         }
       })
     )
-
     await delay(2000)
 
     socket.send(
       JSON.stringify({
-        event: 'RelaySDP',
+        event: 'BroadcastMessage',
         data: {
-          peerId: user.data.userId,
-          sessionDescription: 'T2h0ljI5dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf'
+          username: user.username,
+          userId: user.userId,
+          date: new Date(),
+          content: 'hello world!',
+          chatId: chat.chatId
         }
       })
     )
 
-    delay(2000)
-    socket.send(
-      JSON.stringify({
-        event: 'RelayICE',
-        data: {
-          peerId: user.data.userId,
-          iceCandidate: 'T2h0ljI5dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf'
-        }
-      })
-    )
+    // socket.send(
+    //   JSON.stringify({
+    //     event: 'RelaySDP',
+    //     data: {
+    //       peerId: user.data.userId,
+    //       sessionDescription: 'T2h0ljI5dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf'
+    //     }
+    //   })
+    // )
+
+    // delay(2000)
+    // socket.send(
+    //   JSON.stringify({
+    //     event: 'RelayICE',
+    //     data: {
+    //       peerId: user.data.userId,
+    //       iceCandidate: 'T2h0ljI5dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf'
+    //     }
+    //   })
+    // )
 
     // socket.send(
     //   JSON.stringify({
